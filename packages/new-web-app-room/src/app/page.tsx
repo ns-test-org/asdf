@@ -1,84 +1,116 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-const slogans = [
-  "Turn chats into apps",
-  "Prompt. Ship. Repeat.",
-  "Build anything from a chat",
-  "Ideas → Apps, instantly",
-  "From zero to MVP in minutes",
-  "Your cofounder in the command line",
-  "Draft, iterate, deploy",
-  "Ship faster than you can type",
-  "Design in text, deliver in code",
-  "Dream it. Prompt it. Run it.",
-  "Chat-native app building",
-  "From prompt to product",
-  "One prompt, infinite apps",
-  "Stop scaffolding. Start shipping.",
-  "Prototype at the speed of thought",
-  "Make conversations executable"
-];
+interface FartEmoji {
+  id: number;
+  x: number;
+  y: number;
+  emoji: string;
+  rotation: number;
+  scale: number;
+}
 
-export default function Landing() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
+const fartEmojis = ['💨', '🌬️', '💨', '🌪️', '💨'];
+
+export default function FartApp() {
+  const [farts, setFarts] = useState<FartEmoji[]>([]);
+  const [nextId, setNextId] = useState(0);
+
+  const createFart = useCallback(() => {
+    const newFart: FartEmoji = {
+      id: nextId,
+      x: Math.random() * (window.innerWidth - 100),
+      y: Math.random() * (window.innerHeight - 100),
+      emoji: fartEmojis[Math.floor(Math.random() * fartEmojis.length)],
+      rotation: Math.random() * 360,
+      scale: 0.8 + Math.random() * 0.4, // Random scale between 0.8 and 1.2
+    };
+
+    setFarts(prev => [...prev, newFart]);
+    setNextId(prev => prev + 1);
+
+    // Remove fart after 3 seconds
+    setTimeout(() => {
+      setFarts(prev => prev.filter(fart => fart.id !== newFart.id));
+    }, 3000);
+  }, [nextId]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % slogans.length);
-        setIsVisible(true);
-      }, 400);
-    }, 2800);
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        createFart();
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [createFart]);
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-black text-white">
-      {/* Enhanced animated aurora background layers */}
-      <div className="absolute inset-0 bg-aurora-layer-1" />
-      <div className="absolute inset-0 bg-aurora-layer-2" />
-      <div className="absolute inset-0 bg-aurora-layer-3" />
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent_50%)]"></div>
+      </div>
       
-      {/* Floating particles overlay */}
-      <div className="absolute inset-0 bg-particles" />
-      
-      {/* Main content - centered */}
+      {/* Main content */}
       <main className="relative z-10 h-full flex flex-col items-center justify-center px-6">
-        <h1 className="text-center text-[clamp(28px,6vw,64px)] font-medium tracking-tight mb-4">
-          Turn Chats into Apps
+        <h1 className="text-center text-[clamp(32px,8vw,80px)] font-bold tracking-tight mb-8 text-white">
+          💨 Fart App 💨
         </h1>
         
-        {/* Rotating slogans */}
-        <div className="mt-4 h-8 md:h-10 overflow-hidden flex items-center justify-center">
-          <span
-            className={`inline-block text-center text-[clamp(18px,3vw,32px)] font-light transition-all duration-[400ms] ease-in-out ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
-            }`}
-          >
-            {slogans[currentIndex]}
-          </span>
+        <div className="text-center text-white/80 text-xl md:text-2xl font-light mb-8">
+          Press <kbd className="px-3 py-1 bg-white/20 rounded-lg font-mono text-lg">SPACE</kbd> for farts!
         </div>
+
+        {farts.length === 0 && (
+          <div className="text-center text-white/60 text-lg animate-pulse">
+            Press spacebar to start the fun! 🎉
+          </div>
+        )}
       </main>
       
-      {/* Start Prompting arrow pointing left - bottom left */}
-      <div className="absolute left-6 md:left-8 bottom-[5%] z-20 flex items-center gap-3 arrow-point-left">
-        <div className="flex items-center gap-2 text-white/80 font-medium text-sm md:text-base">
-          <svg 
-            className="w-5 h-5 md:w-6 md:h-6 animate-bounce-horizontal" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span>Start prompting</span>
+      {/* Fart emojis */}
+      {farts.map((fart) => (
+        <div
+          key={fart.id}
+          className="absolute pointer-events-none animate-bounce"
+          style={{
+            left: fart.x,
+            top: fart.y,
+            transform: `rotate(${fart.rotation}deg) scale(${fart.scale})`,
+            fontSize: '4rem',
+            animation: 'fartAnimation 3s ease-out forwards',
+          }}
+        >
+          {fart.emoji}
         </div>
-      </div>
+      ))}
+
+      {/* Custom CSS for fart animation */}
+      <style jsx>{`
+        @keyframes fartAnimation {
+          0% {
+            opacity: 0;
+            transform: scale(0) rotate(0deg);
+          }
+          20% {
+            opacity: 1;
+            transform: scale(1.2) rotate(180deg);
+          }
+          80% {
+            opacity: 1;
+            transform: scale(1) rotate(360deg);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(0.8) rotate(540deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
