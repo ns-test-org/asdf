@@ -49,11 +49,15 @@ export default function FartApp() {
   }, [createFart]);
 
   return (
-    <div className="relative h-[100dvh] w-full overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent_50%)]"></div>
-      </div>
+    <div className="relative h-[100dvh] w-full overflow-hidden">
+      {/* Orange grid background */}
+      <div className="absolute inset-0 bg-orange-500" style={{
+        backgroundImage: `
+          linear-gradient(rgba(255,165,0,0.3) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,165,0,0.3) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px'
+      }}></div>
       
       {/* Main content */}
       <main className="relative z-10 h-full flex flex-col items-center justify-center px-6">
@@ -113,4 +117,5 @@ export default function FartApp() {
     </div>
   );
 }
+
 
